@@ -18,7 +18,10 @@ jobs:
         with:
           version: 2201.9.0
       - name: Build Ballerina JAR
-        run: cd backend && bal build
+        run: |
+          cd backend
+          rm -f Dependencies.toml
+          bal build
       - name: Create Config.toml
         run: |
           cat > backend/Config.toml << 'EOF'

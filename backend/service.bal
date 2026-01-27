@@ -15,6 +15,7 @@ configurable int port = check int:fromString(os:getEnv("PORT") != "" ? os:getEnv
         allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     }
 }
+
 service /api on new http:Listener(port) {
 
     // Health check endpoint
