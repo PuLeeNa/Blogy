@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 function PostForm({
   initialData = { title: "", content: "" },
@@ -8,56 +8,48 @@ function PostForm({
 }) {
   const [formData, setFormData] = useState(initialData);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
-
   return (
-    <div className="post-form">
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="title">Title</label>
-          <input
-            type="text"
-            id="title"
-            value={formData.title}
-            onChange={(e) =>
-              setFormData({ ...formData, title: e.target.value })
-            }
-            placeholder="Enter post title"
-            disabled={loading}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="content">Content</label>
-          <textarea
-            id="content"
-            value={formData.content}
-            onChange={(e) =>
-              setFormData({ ...formData, content: e.target.value })
-            }
-            placeholder="Write your post content here..."
-            disabled={loading}
-            required
-          />
-        </div>
-        <div className="form-actions">
-          <button type="submit" disabled={loading}>
-            {loading ? "Saving..." : "Save Post"}
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="secondary"
-            disabled={loading}
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
-    </div>
+    <form
+      className="post-form"
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit(formData);
+      }}
+    >
+      <div className="form-group">
+        <label>Title</label>
+        <input
+          value={formData.title}
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+          disabled={loading}
+          required
+        />
+      </div>
+      <div className="form-group">
+        <label>Content</label>
+        <textarea
+          value={formData.content}
+          onChange={(e) =>
+            setFormData({ ...formData, content: e.target.value })
+          }
+          disabled={loading}
+          required
+        />
+      </div>
+      <div className="form-actions">
+        <button type="submit" disabled={loading}>
+          {loading ? "Saving..." : "Save"}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="secondary"
+          disabled={loading}
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
   );
 }
 

@@ -1,4 +1,3 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
@@ -9,23 +8,11 @@ const config = {
   baseUrl: process.env.REACT_APP_ASGARDEO_BASE_URL,
   signInRedirectURL: process.env.REACT_APP_ASGARDEO_SIGN_IN_REDIRECT_URL,
   signOutRedirectURL: process.env.REACT_APP_ASGARDEO_SIGN_OUT_REDIRECT_URL,
-  scope: ["openid", "profile", "email"],
-  endpoints: {
-    authorizationEndpoint: `${process.env.REACT_APP_ASGARDEO_BASE_URL}/oauth2/authorize`,
-    tokenEndpoint: `${process.env.REACT_APP_ASGARDEO_BASE_URL}/oauth2/token`,
-    endSessionEndpoint: `${process.env.REACT_APP_ASGARDEO_BASE_URL}/oidc/logout`,
-    jwksUri: `${process.env.REACT_APP_ASGARDEO_BASE_URL}/oauth2/jwks`,
-    revocationEndpoint: `${process.env.REACT_APP_ASGARDEO_BASE_URL}/oauth2/revoke`,
-    introspectionEndpoint: `${process.env.REACT_APP_ASGARDEO_BASE_URL}/oauth2/introspect`,
-    issuer: `${process.env.REACT_APP_ASGARDEO_BASE_URL}/oauth2/token`,
-  },
+  scope: ["openid", "profile"],
 };
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(
-  <React.StrictMode>
-    <AuthProvider config={config}>
-      <App />
-    </AuthProvider>
-  </React.StrictMode>,
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <AuthProvider config={config}>
+    <App />
+  </AuthProvider>,
 );

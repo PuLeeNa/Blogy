@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuthContext } from "@asgardeo/auth-react";
 import { toast } from "react-toastify";
 import PostForm from "../components/PostForm";
 
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:9090/api";
+const API = process.env.REACT_APP_API_BASE_URL || "http://localhost:9090/api";
 
 function EditPost() {
   const { id } = useParams();
@@ -13,47 +12,20 @@ function EditPost() {
   const { state, getIDToken, signIn } = useAuthContext();
   const [loading, setLoading] = useState(false);
   const [post, setPost] = useState(null);
-  const [fetching, setFetching] = useState(true);
 
   useEffect(() => {
-    if (!state.isAuthenticated) {
-      toast.warn("Please sign in to edit posts");
-      signIn();
-      return;
-    }
-    fetchPost();
+    if (!state.isAuthenticated) return signIn();
+    fetch(`${API}/posts/${id}`)
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then(setPost)
+      .catch(() => navigate("/"));
   }, [id, state.isAuthenticated]);
 
-  const fetchPost = async () => {
-    try {
-      setFetching(true);
-      const response = await fetch(`${API_BASE_URL}/posts/${id}`);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch post");
-      }
-
-      const data = await response.json();
-      setPost(data);
-    } catch (err) {
-      toast.error("Error fetching post: " + err.message);
-      navigate("/");
-    } finally {
-      setFetching(false);
-    }
-  };
-
   const handleSubmit = async (formData) => {
-    if (!formData.title || !formData.content) {
-      toast.error("Please fill in all fields");
-      return;
-    }
-
     try {
       setLoading(true);
       const token = await getIDToken();
-
-      const response = await fetch(`${API_BASE_URL}/posts/${id}`, {
+      const res = await fetch(`${API}/posts/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -61,36 +33,20 @@ function EditPost() {
         },
         body: JSON.stringify(formData),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to update post");
+      if (res.ok) {
+        toast.success("Post updated!");
+        navigate("/");
+      } else {
+        toast.error("Failed to update post");
       }
-
-      toast.success("Post updated successfully!");
-      navigate("/");
     } catch (err) {
-      toast.error("Error updating post: " + err.message);
+      toast.error("Error updating post");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCancel = () => {
-    navigate("/");
-  };
-
-  if (!state.isAuthenticated) {
-    return null;
-  }
-
-  if (fetching) {
-    return <div className="loading">Loading post...</div>;
-  }
-
-  if (!post) {
-    return null;
-  }
+  if (!state.isAuthenticated || !post) return null;
 
   return (
     <div>
@@ -98,7 +54,7 @@ function EditPost() {
       <PostForm
         initialData={{ title: post.title, content: post.content }}
         onSubmit={handleSubmit}
-        onCancel={handleCancel}
+        onCancel={() => navigate("/")}
         loading={loading}
       />
     </div>

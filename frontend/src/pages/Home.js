@@ -1,97 +1,59 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useAuthContext } from "@asgardeo/auth-react";
 import { toast } from "react-toastify";
 import PostCard from "../components/PostCard";
 
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:9090/api";
+const API = process.env.REACT_APP_API_BASE_URL || "http://localhost:9090/api";
 
 function Home() {
   const { state, getIDToken } = useAuthContext();
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [currentUserEmail, setCurrentUserEmail] = useState(null);
+  const [userEmail, setUserEmail] = useState(null);
 
   useEffect(() => {
     fetchPosts();
     if (state.isAuthenticated) {
-      getCurrentUserEmail();
+      getIDToken().then((token) => {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        setUserEmail(payload.username || payload.email || payload.sub);
+      });
     }
   }, [state.isAuthenticated]);
 
-  const getCurrentUserEmail = async () => {
-    try {
-      const token = await getIDToken();
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      setCurrentUserEmail(payload.username || payload.email || payload.sub);
-    } catch (err) {
-      console.error("Error getting user email:", err);
-    }
-  };
-
   const fetchPosts = async () => {
     try {
-      setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/posts`);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch posts");
-      }
-
-      const data = await response.json();
-      setPosts(data);
+      const res = await fetch(`${API}/posts`);
+      if (res.ok) setPosts(await res.json());
     } catch (err) {
-      toast.error("Error fetching posts: " + err.message);
-    } finally {
-      setLoading(false);
+      toast.error("Failed to load posts");
     }
   };
 
   const handleDelete = async (postId) => {
-    if (!state.isAuthenticated) {
-      toast.warn("Please sign in to delete posts");
-      return;
-    }
-
+    if (!state.isAuthenticated) return toast.warn("Sign in to delete");
     try {
-      setLoading(true);
       const token = await getIDToken();
-
-      const response = await fetch(`${API_BASE_URL}/posts/${postId}`, {
+      const res = await fetch(`${API}/posts/${postId}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to delete post");
-      }
-
-      toast.success("Post deleted successfully!");
-      setTimeout(() => {
+      if (res.ok) {
+        toast.success("Deleted!");
         fetchPosts();
-      }, 500);
+      } else {
+        toast.error("Failed to delete");
+      }
     } catch (err) {
-      toast.error("Error deleting post: " + err.message);
-    } finally {
-      setLoading(false);
+      toast.error("Error deleting post");
     }
   };
 
-  if (loading && posts.length === 0) {
-    return <div className="loading">Loading...</div>;
-  }
-
-  if (posts.length === 0) {
+  if (!posts.length)
     return (
       <div className="empty-state">
         <h3>No posts yet</h3>
-        <p>Be the first to create a post!</p>
       </div>
     );
-  }
 
   return (
     <div className="posts-list">
@@ -100,7 +62,7 @@ function Home() {
           key={post.id}
           post={post}
           onDelete={handleDelete}
-          currentUserEmail={currentUserEmail}
+          currentUserEmail={userEmail}
         />
       ))}
     </div>
