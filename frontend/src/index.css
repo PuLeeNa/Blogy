@@ -79,6 +79,21 @@ button.danger:hover {
   background-color: #da190b;
 }
 
+button.danger-confirm {
+  background-color: #ff6b6b;
+  color: white;
+  animation: pulse 0.5s ease-in-out;
+}
+
+button.danger-confirm:hover {
+  background-color: #ff5252;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
 .login-container {
   text-align: center;
   margin-top: 100px;

@@ -1,14 +1,21 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@asgardeo/auth-react";
 
 function PostCard({ post, onDelete, currentUserEmail }) {
   const navigate = useNavigate();
   const { state } = useAuthContext();
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const isAuthor =
     state.isAuthenticated && currentUserEmail === post.authorEmail;
 
   const handleDelete = () => {
-    if (window.confirm("Delete this post?")) onDelete(post.id);
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      setTimeout(() => setConfirmDelete(false), 3000);
+    } else {
+      onDelete(post.id);
+    }
   };
 
   return (
@@ -26,8 +33,11 @@ function PostCard({ post, onDelete, currentUserEmail }) {
           >
             Edit
           </button>
-          <button onClick={handleDelete} className="danger">
-            Delete
+          <button
+            onClick={handleDelete}
+            className={confirmDelete ? "danger-confirm" : "danger"}
+          >
+            {confirmDelete ? "Click to Confirm" : "Delete"}
           </button>
         </div>
       )}
