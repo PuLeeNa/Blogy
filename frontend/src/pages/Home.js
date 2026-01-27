@@ -48,7 +48,6 @@ function Home() {
     }
   };
 
-  
   if (!posts.length)
     return (
       <div className="empty-state">
