@@ -13,6 +13,21 @@ jobs:
         steps:
             - name: checkout
               uses: actions/checkout@v4
+            - name: Create Config.toml
+              run: |
+                cat > backend/Config.toml << 'EOF'
+                [blog.backend]
+                port = 9090
+
+                [blog.backend.mongodb]
+                connection_string = "${{ secrets.MONGODB_CONNECTION_STRING }}"
+                database_name = "blogs"
+
+                [blog.backend.asgardeo]
+                issuer = "${{ secrets.ASGARDEO_ISSUER }}"
+                audience = "${{ secrets.ASGARDEO_AUDIENCE }}"
+                jwks_url = "${{ secrets.ASGARDEO_JWKS_URL }}"
+                EOF
             - name: build image
               run: |
                  docker build ./backend/ -t puleena/blogy-be:latest
