@@ -1,73 +1,10 @@
 import ballerina/http;
-import ballerina/jwt;
 import ballerina/os;
 import ballerina/time;
 import ballerinax/mongodb;
 
-// Configuration types
-type MongoDBConfig record {|
-    string connection_string;
-    string database_name;
-|};
-
-type AsgardeoConfig record {|
-    string issuer;
-    string audience;
-    string jwks_url;
-|};
-
-// MongoDB configuration
-configurable MongoDBConfig mongodb = {
-    connection_string: os:getEnv("MONGODB_URI"),
-    database_name: os:getEnv("MONGODB_DATABASE")
-};
-
-// Asgardeo configuration
-configurable AsgardeoConfig asgardeo = {
-    issuer: os:getEnv("ASGARDEO_ISSUER"),
-    audience: os:getEnv("ASGARDEO_AUDIENCE"),
-    jwks_url: os:getEnv("ASGARDEO_JWKS_URL")
-};
-
 // Port configuration
 configurable int port = check int:fromString(os:getEnv("PORT") != "" ? os:getEnv("PORT") : "9090");
-
-// MongoDB client - use connection string directly for MongoDB Atlas support
-final mongodb:Client mongoClient = check new ({
-    connection: mongodb.connection_string
-});
-
-// Blog post types
-type BlogPost record {|
-    string id?;
-    string title;
-    string content;
-    string author;
-    string authorEmail;
-    string createdAt;
-    string updatedAt?;
-|};
-
-type BlogPostInput record {|
-    string title;
-    string content;
-|};
-
-type BlogPostUpdate record {|
-    string title?;
-    string content?;
-|};
-
-// JWT validator configuration
-jwt:ValidatorConfig validatorConfig = {
-    issuer: asgardeo.issuer,
-    audience: asgardeo.audience,
-    signatureConfig: {
-        jwksConfig: {
-            url: asgardeo.jwks_url
-        }
-    }
-};
 
 // Service configuration with CORS and JWT authentication
 @http:ServiceConfig {
@@ -80,7 +17,7 @@ jwt:ValidatorConfig validatorConfig = {
 }
 service /api on new http:Listener(port) {
 
-    // Health check endpoint (no auth required)
+    // Health check endpoint
     resource function get health() returns json {
         return {
             status: "UP",
@@ -95,7 +32,7 @@ service /api on new http:Listener(port) {
             return userInfo;
         }
 
-        string currentTime = time:utcToString(time:utcNow());
+        string currentTime = getCurrentTimestamp();
 
         BlogPost newPost = {
             id: generateId(),
@@ -107,9 +44,7 @@ service /api on new http:Listener(port) {
             updatedAt: currentTime
         };
 
-        mongodb:Database database = check mongoClient->getDatabase(mongodb.database_name);
-        mongodb:Collection collection = check database->getCollection("posts");
-
+        mongodb:Collection collection = check getCollection("posts");
         check collection->insertOne(newPost);
 
         return <http:Created>{
@@ -119,8 +54,7 @@ service /api on new http:Listener(port) {
 
     // Get all blog posts
     resource function get posts() returns BlogPost[]|http:InternalServerError|error {
-        mongodb:Database database = check mongoClient->getDatabase(mongodb.database_name);
-        mongodb:Collection collection = check database->getCollection("posts");
+        mongodb:Collection collection = check getCollection("posts");
 
         stream<BlogPost, error?> result = check collection->find();
         BlogPost[] posts = check from BlogPost post in result
@@ -131,8 +65,7 @@ service /api on new http:Listener(port) {
 
     // Get a single blog post by ID
     resource function get posts/[string id]() returns BlogPost|http:NotFound|http:InternalServerError|error {
-        mongodb:Database database = check mongoClient->getDatabase(mongodb.database_name);
-        mongodb:Collection collection = check database->getCollection("posts");
+        mongodb:Collection collection = check getCollection("posts");
 
         BlogPost? post = check collection->findOne({id: id});
 
@@ -152,8 +85,7 @@ service /api on new http:Listener(port) {
             return userInfo;
         }
 
-        mongodb:Database database = check mongoClient->getDatabase(mongodb.database_name);
-        mongodb:Collection collection = check database->getCollection("posts");
+        mongodb:Collection collection = check getCollection("posts");
 
         // Check if post exists and user is the author
         BlogPost? existingPost = check collection->findOne({id: id});
@@ -172,7 +104,7 @@ service /api on new http:Listener(port) {
 
         // Build update document
         map<json> updateDoc = {
-            updatedAt: time:utcToString(time:utcNow())
+            updatedAt: getCurrentTimestamp()
         };
 
         if post.title is string {
@@ -207,8 +139,7 @@ service /api on new http:Listener(port) {
             return userInfo;
         }
 
-        mongodb:Database database = check mongoClient->getDatabase(mongodb.database_name);
-        mongodb:Collection collection = check database->getCollection("posts");
+        mongodb:Collection collection = check getCollection("posts");
 
         // Check if post exists and user is the author
         BlogPost? existingPost = check collection->findOne({id: id});
@@ -229,46 +160,4 @@ service /api on new http:Listener(port) {
 
         return <http:NoContent>{};
     }
-}
-
-// Helper function to extract user info from JWT token
-function extractUserInfo(http:Request req) returns string|http:Unauthorized {
-    string|http:HeaderNotFoundError authHeader = req.getHeader("Authorization");
-
-    if authHeader is http:HeaderNotFoundError {
-        return <http:Unauthorized>{body: {message: "Unauthorized"}};
-    }
-
-    if authHeader.length() < 8 || !authHeader.startsWith("Bearer ") {
-        return <http:Unauthorized>{body: {message: "Invalid token"}};
-    }
-
-    string token = authHeader.substring(7);
-    jwt:Payload|error payload = jwt:validate(token, validatorConfig);
-
-    if payload is error {
-        return <http:Unauthorized>{body: {message: "Invalid token"}};
-    }
-
-    anydata username = payload["username"];
-    if username is string {
-        return username;
-    }
-
-    anydata email = payload["email"];
-    if email is string {
-        return email;
-    }
-
-    anydata sub = payload["sub"];
-    if sub is string {
-        return sub;
-    }
-
-    return <http:Unauthorized>{body: {message: "Unauthorized"}};
-}
-
-// Simple ID generator
-function generateId() returns string {
-    return time:utcNow().toString();
 }

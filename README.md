@@ -1,29 +1,63 @@
 # Blog Application
 
-A full-stack blog platform with React, Ballerina, MongoDB, and Asgardeo authentication.
+A modern full-stack blog platform with React, Ballerina, MongoDB, and Asgardeo authentication.
 
 ## Tech Stack
 
-- **Backend**: Ballerina REST API
-- **Frontend**: React
-- **Database**: MongoDB
+- **Frontend**: React with React Router
+- **Backend**: Ballerina REST API (modular architecture)
+- **Database**: MongoDB Atlas
 - **Auth**: Asgardeo (OAuth2/OIDC)
 - **Deploy**: Docker + WSO2 Choreo
 
 ## Features
 
-- Create, read, update, and delete blog posts
-- Secure OAuth2 authentication
-- User-based post ownership
-- Docker containerization
+- 🏠 Public blog viewing - no authentication required
+- ✍️ Create, edit, and delete posts (authenticated users)
+- 🔒 Secure OAuth2 authentication with Asgardeo
+- 👤 User-based post ownership and authorization
+- 🎨 Modern UI with toast notifications
+- 📱 Responsive design
+- 🐳 Docker containerization
+
+## Project Structure
+
+### Frontend
+
+```
+frontend/
+├── src/
+│   ├── components/        # Reusable components
+│   │   ├── Header.js      # Navigation header with auth
+│   │   ├── PostCard.js    # Blog post display card
+│   │   └── PostForm.js    # Create/edit post form
+│   ├── pages/             # Route pages
+│   │   ├── Home.js        # Blog list (public)
+│   │   ├── CreatePost.js  # New post page
+│   │   └── EditPost.js    # Edit post page
+│   ├── App.js             # Router configuration
+│   └── index.js           # Entry point
+```
+
+### Backend
+
+```
+backend/
+├── service.bal            # Main API service
+├── auth.bal               # JWT authentication logic
+├── database.bal           # MongoDB connection
+├── types.bal              # Type definitions
+└── utils.bal              # Utility functions
+```
 
 ## Quick Start
 
 ### Prerequisites
 
-- Docker & Docker Compose
+- Node.js 18+ and npm
+- Ballerina 2201.9.0
 - Asgardeo account ([sign up](https://console.asgardeo.io/))
-- MongoDB (local or Atlas)
+- MongoDB Atlas account
 
 ### Setup
 
@@ -34,15 +68,75 @@ A full-stack blog platform with React, Ballerina, MongoDB, and Asgardeo authenti
 
 2. **Configure Environment**
 
-   ```bash
-   # Edit .env with your Asgardeo credentials
+   Create `frontend/.env`:
+
+   ```env
+   REACT_APP_ASGARDEO_CLIENT_ID=your_client_id
+   REACT_APP_ASGARDEO_BASE_URL=https://api.asgardeo.io/t/your_org
+   REACT_APP_API_BASE_URL=http://localhost:9090/api
    ```
 
-3. **Run Application**
+   Create `backend/Config.toml`:
+
+   ```toml
+   MONGODB_URI = "mongodb+srv://username:password@cluster.mongodb.net/"
+   MONGODB_DATABASE = "blog_db"
+   ASGARDEO_ISSUER = "https://api.asgardeo.io/t/your_org/oauth2/token"
+   ASGARDEO_AUDIENCE = "your_client_id"
+   ASGARDEO_JWKS_URL = "https://api.asgardeo.io/t/your_org/oauth2/jwks"
+   PORT = "9090"
+   ```
+
+3. **Install Dependencies & Run**
+
+   **Backend:**
 
    ```bash
-   docker-compose up -d
+   cd backend
+   bal run
    ```
+
+   **Frontend:**
+
+   ```bash
+   cd frontend
+   npm install
+   npm start
+   ```
+
+4. **Access Application**
+   - **Blog Home**: http://localhost:3000 (public - view all posts)
+   - **Backend API**: http://localhost:9090/api
+   - Click "Sign In" to authenticate and create posts
+
+## How It Works
+
+### Public Viewing
+
+- Navigate to `http://localhost:3000` to see all blog posts
+- No authentication required to browse blogs
+- Clean, responsive interface
+
+### Creating Posts
+
+1. Click "Sign In" in header
+2. Authenticate with Asgardeo
+3. Click "New Post" button (now visible)
+4. Fill in title and content
+5. Submit to create post
+
+### Managing Posts
+
+- **Edit**: Only visible to post authors - click Edit, modify, save
+- **Delete**: Only visible to post authors - click Delete, confirm
+- Posts show author email and creation date
+
+### Authentication Flow
+
+- **Not Signed In**: Header shows "Sign In" button
+- **Signed In**: Header shows "New Post" and "Sign Out" buttons
+- Protected routes redirect to sign-in if needed
+- Toast notifications guide user actions
 
 4. **Access**
    - Frontend: http://localhost:3000
@@ -104,4 +198,3 @@ npm start
 4. Configure environment variables
 5. Update Asgardeo redirect URLs with Choreo URLs
 6. Deploy
-

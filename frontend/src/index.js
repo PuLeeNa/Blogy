@@ -10,6 +10,15 @@ const config = {
   signInRedirectURL: process.env.REACT_APP_ASGARDEO_SIGN_IN_REDIRECT_URL,
   signOutRedirectURL: process.env.REACT_APP_ASGARDEO_SIGN_OUT_REDIRECT_URL,
   scope: ["openid", "profile", "email"],
+  endpoints: {
+    authorizationEndpoint: `${process.env.REACT_APP_ASGARDEO_BASE_URL}/oauth2/authorize`,
+    tokenEndpoint: `${process.env.REACT_APP_ASGARDEO_BASE_URL}/oauth2/token`,
+    endSessionEndpoint: `${process.env.REACT_APP_ASGARDEO_BASE_URL}/oidc/logout`,
+    jwksUri: `${process.env.REACT_APP_ASGARDEO_BASE_URL}/oauth2/jwks`,
+    revocationEndpoint: `${process.env.REACT_APP_ASGARDEO_BASE_URL}/oauth2/revoke`,
+    introspectionEndpoint: `${process.env.REACT_APP_ASGARDEO_BASE_URL}/oauth2/introspect`,
+    issuer: `${process.env.REACT_APP_ASGARDEO_BASE_URL}/oauth2/token`,
+  },
 };
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
