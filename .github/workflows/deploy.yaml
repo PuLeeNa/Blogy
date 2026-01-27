@@ -1,0 +1,28 @@
+name: Build and Publish image to Docker Hub and Trigger Render Deployment
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - 'backend/**'
+            - 'frontend/**'
+
+jobs:
+    publish_images:
+        runs-on: ubuntu-latest
+        steps:
+            - name: checkout
+              uses: actions/checkout@v4
+            - name: build image
+              run: |
+                 docker build ./backend/ -t puleena/blogy-be:latest
+                 docker build ./frontend/ -t puleena/blogy-fe:latest
+            - name: push image to docker hub
+              run: |
+                docker login -u puleena -p ${{ secrets.DOCKER_HUB_TOKEN }}
+                docker push puleena/blogy-be:latest
+                docker push puleena/blogy-fe:latest
+
+            # - name: Trigger Render Deployment
+            #   run: |
+            #     curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_API }}"

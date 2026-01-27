@@ -1,64 +1,17 @@
 services:
-  mongodb:
-    image: mongo:7.0
-    container_name: blog-mongodb
-    restart: unless-stopped
-    ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: pulina
-      MONGO_INITDB_ROOT_PASSWORD: d22n2323gv2t3v
-      MONGO_INITDB_DATABASE: blogs
-    volumes:
-      - mongodb_data:/data/db
-    networks:
-      - blog-network
-
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: blog-backend
-    restart: unless-stopped
-    ports:
-      - "9090:9090"
-    environment:
-      PORT: 9090
-      MONGODB_URI: mongodb+srv://pulina:d22n2323gv2t3v@blogs.aybzkvd.mongodb.net/?appName=blogs
-      MONGODB_DATABASE: blogs
-      MONGODB_USERNAME: pulina
-      MONGODB_PASSWORD: d22n2323gv2t3v
-      ASGARDEO_ISSUER: ${ASGARDEO_ISSUER}
-      ASGARDEO_AUDIENCE: ${ASGARDEO_AUDIENCE}
-      ASGARDEO_JWKS_URL: ${ASGARDEO_JWKS_URL}
-    depends_on:
-      - mongodb
-    networks:
-      - blog-network
-
-  frontend:
+  con-blog-fe:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      args:
-        REACT_APP_ASGARDEO_CLIENT_ID: ${REACT_APP_ASGARDEO_CLIENT_ID}
-        REACT_APP_ASGARDEO_BASE_URL: ${REACT_APP_ASGARDEO_BASE_URL}
-        REACT_APP_ASGARDEO_SIGN_IN_REDIRECT_URL: ${REACT_APP_ASGARDEO_SIGN_IN_REDIRECT_URL}
-        REACT_APP_ASGARDEO_SIGN_OUT_REDIRECT_URL: ${REACT_APP_ASGARDEO_SIGN_OUT_REDIRECT_URL}
-        REACT_APP_API_BASE_URL: ${REACT_APP_API_BASE_URL}
-    container_name: blog-frontend
-    restart: unless-stopped
     ports:
-      - "3000:80"
-    depends_on:
-      - backend
-    networks:
-      - blog-network
+      - 3000:3000
+    env_file:
+      - ./frontend/.env
 
-volumes:
-  mongodb_data:
-    driver: local
-
-networks:
-  blog-network:
-    driver: bridge
+  con-blog-be:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - 9090:9090
+# docker-compose up

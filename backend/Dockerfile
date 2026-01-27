@@ -1,5 +1,6 @@
-FROM ballerina/ballerina:2201.9.0
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
-COPY . .
+COPY ./target/bin/backend.jar .
+COPY ./Config.toml .
 EXPOSE 9090
-CMD ["bal", "run", "service.bal"]
+CMD ["java", "-jar", "backend.jar"]
