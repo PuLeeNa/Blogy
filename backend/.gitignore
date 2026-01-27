@@ -1,0 +1,5 @@
+target/
+Config.toml
+*.jar
+*.log
+.ballerina/
