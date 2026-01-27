@@ -6,18 +6,3 @@ distribution = "2201.9.0"
 
 [build-options]
 observabilityIncluded = true
-
-[[dependency]]
-org = "ballerina"
-name = "http"
-version = "2.12.10"
-
-[[dependency]]
-org = "ballerina"
-name = "jwt"
-version = "2.13.0"
-
-[[dependency]]
-org = "ballerinax"
-name = "mongodb"
-version = "5.0.0"
