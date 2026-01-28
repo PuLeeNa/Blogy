@@ -3,7 +3,7 @@ import { useAuthContext } from "@asgardeo/auth-react";
 import { toast } from "react-toastify";
 import PostCard from "../components/PostCard";
 
-const API = process.env.REACT_APP_API_BASE_URL || "http://localhost:9090/api";
+const API = window.configs?.apiBaseUrl || "http://localhost:9090/api";
 
 function Home() {
   const { state, getIDToken } = useAuthContext();
@@ -48,7 +48,6 @@ function Home() {
     }
   };
 
-  
   if (!posts.length)
     return (
       <div className="empty-state">

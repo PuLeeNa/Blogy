@@ -4,7 +4,7 @@ import { useAuthContext } from "@asgardeo/auth-react";
 import { toast } from "react-toastify";
 import PostForm from "../components/PostForm";
 
-const API = process.env.REACT_APP_API_BASE_URL || "http://localhost:9090/api";
+const API = window.configs?.apiBaseUrl || "http://localhost:9090/api";
 
 function EditPost() {
   const { id } = useParams();

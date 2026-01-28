@@ -4,10 +4,10 @@ import App from "./App";
 import { AuthProvider } from "@asgardeo/auth-react";
 
 const config = {
-  clientID: process.env.REACT_APP_ASGARDEO_CLIENT_ID,
-  baseUrl: process.env.REACT_APP_ASGARDEO_BASE_URL,
-  signInRedirectURL: process.env.REACT_APP_ASGARDEO_SIGN_IN_REDIRECT_URL,
-  signOutRedirectURL: process.env.REACT_APP_ASGARDEO_SIGN_OUT_REDIRECT_URL,
+  clientID: window.configs?.clientID,
+  baseUrl: window.configs?.baseUrl,
+  signInRedirectURL: window.configs?.signInRedirectURL,
+  signOutRedirectURL: window.configs?.signOutRedirectURL,
   scope: ["openid", "profile"],
 };
 
