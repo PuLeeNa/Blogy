@@ -1,0 +1,11 @@
+schemaVersion: "1.2"
+endpoints:
+    - name: blog-api-e04
+      displayName: Blog API
+      service:
+        basePath: /api
+        port: 9090
+      type: REST
+      networkVisibilities:
+        - Project
+        - Public
