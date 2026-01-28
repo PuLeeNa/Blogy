@@ -1,13 +1,17 @@
-# Blog Application
+# Blogy
 
-A modern full-stack blog platform with React, Ballerina, MongoDB, and Asgardeo authentication.
+A modern full-stack blog platform with React, Ballerina, MongoDB, Asgardeo authentication and deployed on WSO2 Choreo.
+
+## 🌐 Live Demo
+
+**Try it now:** [https://blogy.choreoapps.dev](https://blogy.choreoapps.dev)
 
 ## Tech Stack
 
 - **Frontend**: React with React Router
-- **Backend**: Ballerina REST API (modular architecture)
-- **Database**: MongoDB Atlas
-- **Auth**: Asgardeo (OAuth2/OIDC)
+- **Backend**: Ballerina REST API
+- **Database**: MongoDB
+- **Auth**: Asgardeo (OAuth2)
 - **Deploy**: Docker + WSO2 Choreo
 
 ## Features
