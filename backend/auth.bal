@@ -1,13 +1,8 @@
 import ballerina/http;
 import ballerina/jwt;
-import ballerina/os;
 
 // Asgardeo configuration
-configurable AsgardeoConfig asgardeo = {
-    issuer: os:getEnv("ASGARDEO_ISSUER"),
-    audience: os:getEnv("ASGARDEO_AUDIENCE"),
-    jwks_url: os:getEnv("ASGARDEO_JWKS_URL")
-};
+configurable AsgardeoConfig asgardeo = ?;
 
 // JWT validator configuration
 jwt:ValidatorConfig validatorConfig = {

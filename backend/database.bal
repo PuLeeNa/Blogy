@@ -1,11 +1,7 @@
-import ballerina/os;
 import ballerinax/mongodb;
 
 // MongoDB configuration
-configurable MongoDBConfig mongodb = {
-    connection_string: os:getEnv("MONGODB_URI"),
-    database_name: os:getEnv("MONGODB_DATABASE")
-};
+configurable MongoDBConfig mongodb = ?;
 
 // MongoDB client - use connection string directly for MongoDB Atlas support
 final mongodb:Client mongoClient = check new ({

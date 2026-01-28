@@ -1,10 +1,9 @@
 import ballerina/http;
-import ballerina/os;
 import ballerina/time;
 import ballerinax/mongodb;
 
 // Port configuration
-configurable int port = check int:fromString(os:getEnv("PORT") != "" ? os:getEnv("PORT") : "9090");
+configurable int port = 9090;
 
 // Service configuration with CORS and JWT authentication
 @http:ServiceConfig {
