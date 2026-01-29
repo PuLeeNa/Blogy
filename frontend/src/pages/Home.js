@@ -9,6 +9,7 @@ function Home() {
   const { state, getIDToken } = useAuthContext();
   const [posts, setPosts] = useState([]);
   const [userEmail, setUserEmail] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchPosts();
@@ -21,11 +22,14 @@ function Home() {
   }, [state.isAuthenticated]);
 
   const fetchPosts = async () => {
+    setLoading(true);
     try {
       const res = await fetch(`${API}/posts`);
       if (res.ok) setPosts(await res.json());
     } catch (err) {
       toast.error("Failed to load posts");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -47,6 +51,13 @@ function Home() {
       toast.error("Error deleting post");
     }
   };
+
+  if (loading)
+    return (
+      <div className="loading-container">
+        <div className="spinner"></div>
+      </div>
+    );
 
   if (!posts.length)
     return (
